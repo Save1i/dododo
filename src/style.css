@@ -1,0 +1,128 @@
+@font-face {
+  font-family: "RedditSans";
+  src: url("./RedditSans-Italic-VariableFont_wght.ttf") format("truetype"),
+    url("./RedditSans-VariableFont_wght.ttf") format("truetype");
+  font-weight: 600;
+  font-style: normal;
+}
+
+html {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+*,
+*:before,
+*:after {
+  box-sizing: inherit;
+}
+
+body {
+  height: 100vh;
+  overflow-x: hidden;
+  margin: 0;
+  padding: 0;
+  font-family: "RedditSans", sans-serif;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+span {
+  margin: 0;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+}
+
+body {
+  padding: 0;
+  margin: 0;
+}
+
+.hello {
+  color: red;
+  font-size: 40px;
+  font-family: "RedditSans";
+}
+
+.header {
+  width: 100%;
+  padding: 20px 10px 20px 10px;
+  background-color: rgb(136, 201, 251);
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo__svg {
+  height: 50px;
+}
+
+.logo__text {
+  font-size: 40px;
+  font-weight: 600;
+}
+
+.sidebar {
+  background-color: #b1b1b1;
+  height: 100%;
+  width: 300px;
+  padding: 15px 20px 20px 15px;
+}
+
+.sidebar__title {
+  padding: 10px;
+  font-size: 30px;
+}
+
+.active {
+  display: none;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  width: 200px;
+}
+.form__input {
+  margin-bottom: 10px;
+}
+.form__button {
+  margin: 5px 0;
+}
+
+.projects__inner {
+  display: flex;
+}
+
+.main {
+  height: 100%;
+  display: flex;
+}
+
+.project {
+  width: 100%;
+}
+
+.done {
+  opacity: 0.5;
+}
