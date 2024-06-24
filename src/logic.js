@@ -3,12 +3,38 @@ import { format, formatDistance, formatRelative, subDays } from "date-fns";
 
 console.log(format(new Date(), "P:"));
 
-class PreviewProject {
+class Project {
   _title = "";
+
   _tasks = [];
   _key = null;
 
   constructor(container, title = "", key = null) {
+    //projectInner в контейнер!!!
+    this.projectBtn = document.createElement("button");
+    this.projectBtn.classList.add("project__btn");
+
+    this._key = key;
+    this.container = container;
+    this.title = title;
+
+    container.prepend(this.projectBtn);
+
+    this.projectBtn.addEventListener("click", () => {
+      this.previewProject();
+    });
+  }
+
+  set title(value) {
+    this._title = value;
+    this.projectBtn.textContent = value;
+  }
+
+  get title() {
+    return this._title;
+  }
+
+  previewProject() {
     this.project = document.createElement("div");
     this.titleText = document.createElement("p");
     this.tasksContainer = document.createElement("div");
@@ -20,30 +46,19 @@ class PreviewProject {
     this.button.className = "button__add";
     this.button.id = "button__add-task";
 
+    this.titleText.textContent = this.title;
+
     this.project.append(this.titleText);
     this.project.append(this.tasksContainer);
     this.project.append(this.button);
 
     this.button.textContent = "Add Task";
 
-    this._key = key;
-    this.container = container;
-    this.title = title;
-
-    container.append(this.project);
+    document.querySelector(".project").append(this.project);
 
     this.button.addEventListener("click", () => {
       this.addTask();
     });
-  }
-
-  set title(value) {
-    this._title = value;
-    this.titleText.textContent = value;
-  }
-
-  get title() {
-    return this._title;
   }
 
   getNewId() {
@@ -62,14 +77,12 @@ class PreviewProject {
     const taskDate = format(new Date(), "P:");
     const newTask = new Task(this, taskTitle, taskDate);
 
-    newTask.id = this.getNewId(); // добавляем id к классу Task и добавляем уникальное значиенияЫ
+    newTask.id = this.getNewId(); // добавляем id к классу Task и добавляем уникальное значение
 
     this._tasks.push(newTask);
     console.log(this._tasks);
 
     this.save();
-
-    return id;
   }
 
   remove(value) {
@@ -98,9 +111,8 @@ class PreviewProject {
           date: task.date,
           id: task.id,
         });
-
-        localStorage.setItem(this._key, JSON.stringify(saveList));
       }
+      localStorage.setItem(this._key, JSON.stringify(saveList));
     }
   }
 
@@ -111,7 +123,7 @@ class PreviewProject {
     this.tasksContainer.innerHTML = "";
   }
 }
-
+//////////////////////////////////////////////////////////////////////////////////
 class Task {
   _title = "";
   _isComplete = false;
@@ -143,7 +155,7 @@ class Task {
     this.isComplete = isComplete;
     this.date = date;
 
-    if (container instanceof PreviewProject) {
+    if (container instanceof Project) {
       container.tasksContainer.append(this.task);
     } else {
       container.append(this.task);
@@ -197,124 +209,17 @@ class Task {
   delete() {
     this.task.remove();
 
-    if (this.container instanceof PreviewProject) {
+    if (this.container instanceof Project) {
       this.container.remove(this);
     }
   }
 }
 
-export function addProjectLogic(button) {
-  button.addEventListener("click", () => {
-    formForName(button);
-    button.classList.add("active");
+document.addEventListener("DOMContentLoaded", () => {
+  document.querySelector(".button__add").addEventListener("click", () => {
+    let newProject = new Project(
+      document.querySelector(".projects__inner"),
+      prompt("Название группы")
+    );
   });
-}
-
-function formForName(buttontriger) {
-  const form = document.createElement("form");
-  form.className = "form";
-
-  const input = document.createElement("input");
-  input.className = "form__input";
-  input.type = "text";
-  input.placeholder = "Введите текст";
-
-  const yesButton = document.createElement("button");
-  yesButton.className = "form__button form__button_yes";
-  yesButton.type = "submit";
-  yesButton.textContent = "Добавить";
-
-  const noButton = document.createElement("button");
-  noButton.className = "form__button form__button_no";
-  noButton.type = "button";
-  noButton.textContent = "Отменить";
-
-  // Добавление элементов в форму
-  form.appendChild(input);
-  form.appendChild(yesButton);
-  form.appendChild(noButton);
-
-  // Добавление формы в контейнер
-  document.querySelector(".projects__inner").appendChild(form);
-
-  form.addEventListener("submit", function (event) {
-    const container = document.querySelector(".project");
-    console.log(container); // Add this line to debug
-    event.preventDefault();
-    const name = input.value;
-
-    let newProject = new creareProject(container, name);
-    // createButton(name); // заменить на класссс
-    form.remove();
-    buttontriger.classList.remove("active");
-  });
-
-  noButton.addEventListener("click", () => {
-    form.remove();
-    buttontriger.classList.remove("active");
-  });
-}
-
-class creareProject {
-  _name = "";
-  constructor(container, name = "") {
-    this.projectBtn = document.createElement("button");
-    this.projectBtn.className = "project__button";
-
-    this.container = container;
-    this.name = name;
-
-    document.querySelector(".projects__inner").prepend(this.projectBtn);
-
-    this.projectBtn.addEventListener("click", () => {
-      this.createProjectBtn();
-    });
-  }
-
-  set name(value) {
-    this._name = value;
-    this.projectBtn.textContent = value;
-  }
-
-  get name() {}
-
-  createProjectBtn() {
-    document.querySelector(".project").innerHTML = "";
-
-    let project = new PreviewProject(this.container, this._name, "Tasks");
-  }
-}
-
-function createButton(name) {
-  const button = document.createElement("button");
-  button.className = "project__button";
-  button.textContent = name;
-  document.querySelector(".projects__inner").prepend(button);
-
-  button.addEventListener("click", () => {
-    document.querySelector(".project").innerHTML = "";
-
-    console.log("Hola mather fucker!");
-
-    let project = new PreviewProject(document.querySelector(".project"), name, "Tasks");
-  });
-}
-
-// function createProjectPage() {
-//   console.log("Creating project page");
-//   const projectPage = document.createElement("div");
-//   projectPage.classList.add("project");
-
-//   const projectTitle = document.createElement("h3");
-//   projectTitle.classList.add("project__title");
-//   projectTitle.textContent = "Prod1";
-
-//   const projectBtn = document.createElement("button");
-//   projectBtn.classList.add("project__btn");
-//   projectBtn.textContent = "Add Task";
-
-//   projectPage.appendChild(projectTitle);
-//   projectPage.appendChild(projectBtn);
-
-//   return projectPage;
-// }
+});

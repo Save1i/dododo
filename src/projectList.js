@@ -1,3 +1,0 @@
-class ProjectList {
-  constructor() {}
-}
