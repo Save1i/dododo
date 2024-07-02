@@ -1,9 +1,11 @@
 @font-face {
-  font-family: "RedditSans";
-  src: url("./RedditSans-Italic-VariableFont_wght.ttf") format("truetype"),
-    url("./RedditSans-VariableFont_wght.ttf") format("truetype");
-  font-weight: 600;
-  font-style: normal;
+  font-family: "04b_30";
+  src: url("./04B_30__.TTF") format("truetype");
+}
+
+@font-face {
+  font-family: "Daydream";
+  src: url("./Daydream.ttf") format("truetype");
 }
 
 html {
@@ -16,6 +18,7 @@ html {
 *:before,
 *:after {
   box-sizing: inherit;
+  font-family: "Daydream", sans-serif;
 }
 
 body {
@@ -23,7 +26,7 @@ body {
   overflow-x: hidden;
   margin: 0;
   padding: 0;
-  font-family: "RedditSans", sans-serif;
+  font-family: "Daydream", sans-serif;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -64,65 +67,213 @@ body {
 .header {
   width: 100%;
   padding: 20px 10px 20px 10px;
-  background-color: rgb(136, 201, 251);
+  background-color: #f8717142;
+  border: solid #ef4444 3px;
 }
 
 .logo {
   display: flex;
   align-items: center;
   gap: 10px;
+  max-width: 250px;
 }
 
 .logo__svg {
-  height: 50px;
+  height: 60px;
 }
 
 .logo__text {
   font-size: 40px;
   font-weight: 600;
+  font-family: "04b_30", sans-serif;
 }
 
 .sidebar {
-  background-color: #b1b1b1;
+  background-color: #fee2e28c;
+  border: solid #ef4444 3px;
+  border-top: none;
   height: 100%;
   width: 300px;
-  padding: 15px 20px 20px 15px;
+  padding: 20px 20px 20px 15px;
 }
 
 .sidebar__title {
-  padding: 10px;
   font-size: 30px;
+  font-family: "04b_30", sans-serif;
 }
 
 .active {
   display: none;
 }
 
-.form {
-  display: flex;
-  flex-direction: column;
-  width: 200px;
-}
-.form__input {
-  margin-bottom: 10px;
-}
-.form__button {
-  margin: 5px 0;
-}
-
 .projects__inner {
   display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-top: 60px;
+  margin-bottom: 40px;
+}
+
+.project__btn {
+  height: 40px;
+  width: 100%;
+  background-color: #fee2e28c;
+  border: solid #ef4444 2px;
+  font-size: 16px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.project__btn:hover {
+  height: 40px;
+  width: 100%;
+  background-color: #f9d6d6;
+  border: solid #ef4444 2px;
+  font-size: 16px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+
+.button__add {
+  height: 40px;
+  width: 100%;
+  background-color: #fee2e28c;
+  border: solid #ef4444 2px;
+  font-size: 16px;
+}
+
+.button__add:hover {
+  height: 40px;
+  width: 100%;
+  background-color: #f9d6d6;
+  border: solid #ef4444 3px;
+  font-size: 16px;
+  cursor: pointer;
 }
 
 .main {
   height: 100%;
+  width: 100%;
   display: flex;
 }
 
 .project {
-  width: 100%;
+  flex-grow: 1;
+  background-color: #fbefef;
+  border-right: solid #ef4444 3px;
+  border-bottom: solid #ef4444 3px;
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+}
+
+.project__inner {
+  width: 900px;
+}
+
+.project__title {
+  font-size: 25px;
 }
 
 .done {
   opacity: 0.5;
+}
+
+.tasks__list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin: 50px 0 30px 0;
+}
+
+.task {
+  display: flex;
+  align-items: center;
+  border-bottom: solid #ef44442b 2px;
+  height: 50px;
+}
+
+.task__check {
+  appearance: none;
+  width: 25px;
+  height: 25px;
+  border: 2px solid #ef4444;
+  background-color: #fee2e2;
+  border-radius: 1px;
+  position: relative;
+  cursor: pointer;
+  outline: none;
+  margin-right: 10px;
+  transition: all 0.3s ease;
+}
+
+.task__check::before {
+  content: "";
+  position: absolute;
+  top: -2px;
+  left: 8px;
+  width: 8px;
+  height: 18px;
+  border: solid white;
+  border-width: 0 3px 3px 0;
+  transform: rotate(45deg);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.task__check:checked {
+  background-color: #ef4444;
+  border-color: #ef4444;
+}
+
+.task__check:checked::before {
+  opacity: 1;
+}
+
+.task__title {
+  font-size: 15px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-right: 20px;
+}
+
+.task__date {
+  margin-left: auto;
+}
+
+.task__delete {
+  margin-left: 10px;
+  background-color: inherit;
+  cursor: pointer;
+  border: solid #ef4444 2px;
+  height: 25px;
+  width: 25px;
+  margin-right: 20px;
+  font-size: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.project__del-btn {
+  height: 40px;
+  width: 100%;
+  background-color: #fee2e28c;
+  border: solid #ef4444 2px;
+  font-size: 16px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 15px;
+}
+
+.project__del-btn:hover {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
 }

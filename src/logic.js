@@ -1,28 +1,35 @@
-import { header } from "./header.js"; // Correct the import statement
-import { format, formatDistance, formatRelative, subDays } from "date-fns";
-
-console.log(format(new Date(), "P:"));
+import { format } from "date-fns"; // Corrected import statement
 
 class Project {
-  _title = "";
+  static _allProjects = [];
 
-  _tasks = [];
-  _key = null;
-
-  constructor(container, title = "", key = null) {
-    //projectInner в контейнер!!!
+  constructor(container, title = "", key = null, id = "") {
     this.projectBtn = document.createElement("button");
     this.projectBtn.classList.add("project__btn");
 
     this._key = key;
     this.container = container;
     this.title = title;
+    this.id = id || this.getNewProjectId(); // Correctly set the ID
 
     container.prepend(this.projectBtn);
 
     this.projectBtn.addEventListener("click", () => {
       this.previewProject();
     });
+
+    this._tasks = []; // Initialize tasks array for each project
+
+    // Initialize tasks container here
+    this.tasksContainer = document.createElement("div");
+    this.tasksContainer.className = "tasks__list";
+
+    // Add the current project instance to the static _allProjects array
+    Project._allProjects.push(this);
+
+    this.loadTasks();
+
+    // Project.saveAll(); //
   }
 
   set title(value) {
@@ -34,36 +41,76 @@ class Project {
     return this._title;
   }
 
+  set id(value) {
+    this._id = value;
+  }
+
+  get id() {
+    return this._id;
+  }
+
   previewProject() {
+    // Create elements for project preview
     this.project = document.createElement("div");
     this.titleText = document.createElement("p");
-    this.tasksContainer = document.createElement("div");
     this.button = document.createElement("button");
 
     this.project.className = "project__inner";
     this.titleText.className = "project__title";
-    this.tasksContainer.className = "tasks__list";
     this.button.className = "button__add";
     this.button.id = "button__add-task";
 
+    this.deleteProjectBtn = document.createElement("button");
+    this.deleteProjectBtn.classList.add("project__del-btn");
+
     this.titleText.textContent = this.title;
 
+    // Clear tasks container
+    this.tasksContainer.innerHTML = "";
+
+    // Add elements to project
     this.project.append(this.titleText);
     this.project.append(this.tasksContainer);
     this.project.append(this.button);
+    this.project.append(this.deleteProjectBtn);
 
     this.button.textContent = "Add Task";
+    this.deleteProjectBtn.textContent = "Delete project";
 
-    document.querySelector(".project").append(this.project);
+    // Add project to container
+    const projectContainer = document.querySelector(".project");
+    projectContainer.innerHTML = "";
+    projectContainer.append(this.project);
 
+    // Add event listener for "Add Task" button
     this.button.addEventListener("click", () => {
       this.addTask();
     });
+
+    this.deleteProjectBtn.addEventListener("click", () => {
+      if (confirm("Вы уверенны?")) {
+        this.deleteProject(this);
+      }
+    });
+
+    // Load saved tasks if any
+    this.loadTasks();
   }
 
-  getNewId() {
+  getNewProjectId() {
+    // Find the maximum id among all projects and return a new unique id
     let max = 0;
+    for (const project of Project._allProjects) {
+      if (project.id > max) {
+        max = project.id;
+      }
+    }
+    return max + 1;
+  }
 
+  getNewTaskId() {
+    // Find the maximum id among tasks in this project and return a new unique id
+    let max = 0;
     for (const task of this._tasks) {
       if (task.id > max) {
         max = task.id;
@@ -74,23 +121,32 @@ class Project {
 
   addTask() {
     const taskTitle = prompt("Enter task title:");
-    const taskDate = format(new Date(), "P:");
+    const taskDate = format(new Date(), "P");
     const newTask = new Task(this, taskTitle, taskDate);
 
-    newTask.id = this.getNewId(); // добавляем id к классу Task и добавляем уникальное значение
+    newTask.id = this.getNewTaskId(); // Assign a new unique id to the task
 
-    this._tasks.push(newTask);
-    console.log(this._tasks);
+    this._tasks.push(newTask); // Add the task to the tasks array
 
-    this.save();
+    Project.saveAll(); // Save all projects and their tasks
+  }
+
+  deleteProject(value) {
+    let id = value.id;
+
+    this.project.innerHTML = "";
+    for (let i = 0; i < Project._allProjects.length; i++) {
+      if (Project._allProjects[i].id == id) {
+        Project._allProjects.splice(i, 1);
+      }
+    }
+
+    Project.saveAll(); // Save all projects and their tasks
+    location.reload();
   }
 
   remove(value) {
-    let id = value;
-
-    if (value instanceof Task) {
-      id = value.id;
-    }
+    let id = value.id;
 
     for (let i = 0; i < this._tasks.length; i++) {
       if (this._tasks[i].id == id) {
@@ -98,31 +154,52 @@ class Project {
       }
     }
 
-    this.save();
+    Project.saveAll(); // Save all projects and their tasks
   }
 
-  save() {
-    if (this._key) {
-      let saveList = [];
-      for (const task of this._tasks) {
-        saveList.push({
+  static saveAll() {
+    let saveList = [];
+    for (const project of Project._allProjects) {
+      let projectTasks = [];
+      for (const task of project._tasks) {
+        projectTasks.push({
           title: task.title,
           isComplete: task.isComplete,
           date: task.date,
           id: task.id,
         });
       }
-      localStorage.setItem(this._key, JSON.stringify(saveList));
+      saveList.push({
+        project: { title: project.title, id: project.id },
+        tasks: projectTasks,
+      });
+    }
+    localStorage.setItem("allProjects", JSON.stringify(saveList));
+    console.log("Saved Projects: ", saveList); // Debugging
+  }
+
+  loadTasks() {
+    // Clear current task array
+    this._tasks = [];
+
+    const data = localStorage.getItem("allProjects");
+    if (data) {
+      const projects = JSON.parse(data);
+      console.log("Loaded Projects: ", projects); // Debugging
+      for (const proj of projects) {
+        if (proj.project.id === this.id) {
+          for (const taskData of proj.tasks) {
+            const task = new Task(this, taskData.title, taskData.date, taskData.isComplete);
+            task.id = taskData.id;
+            this._tasks.push(task);
+            // console.log(`Loaded Task: ${taskData.title} (ID: ${taskData.id})`);
+          }
+        }
+      }
     }
   }
-
-  updateTasks() {
-    let startList = [];
-
-    this._tasks = [];
-    this.tasksContainer.innerHTML = "";
-  }
 }
+
 //////////////////////////////////////////////////////////////////////////////////
 class Task {
   _title = "";
@@ -143,6 +220,8 @@ class Task {
     this.dateElement.className = "task__date";
     this.delBtn.className = "task__delete";
 
+    this.checkBox.type = "checkbox";
+
     this.delBtn.textContent = "X";
 
     this.task.append(this.checkBox);
@@ -155,14 +234,20 @@ class Task {
     this.isComplete = isComplete;
     this.date = date;
 
+    // Append the task to the project's tasksContainer
     if (container instanceof Project) {
       container.tasksContainer.append(this.task);
     } else {
       container.append(this.task);
     }
 
+    if (this.isComplete == true) {
+      this.titleElement.classList.toggle("done");
+      this.dateElement.classList.toggle("done");
+      this.checkBox.classList.toggle("done");
+    }
+
     this.checkBox.addEventListener("change", () => {
-      console.log("work");
       this.done();
     });
 
@@ -203,7 +288,7 @@ class Task {
     this.titleElement.classList.toggle("done");
     this.dateElement.classList.toggle("done");
     this.checkBox.classList.toggle("done");
-    console.log(this._isComplete);
+    Project.saveAll();
   }
 
   delete() {
@@ -219,7 +304,21 @@ document.addEventListener("DOMContentLoaded", () => {
   document.querySelector(".button__add").addEventListener("click", () => {
     let newProject = new Project(
       document.querySelector(".projects__inner"),
-      prompt("Название группы")
+      prompt("Enter project title"),
+      "Aprojects"
     );
   });
+
+  // Load existing projects
+  const existingProjects = JSON.parse(localStorage.getItem("allProjects"));
+  if (existingProjects) {
+    for (const projData of existingProjects) {
+      const project = new Project(
+        document.querySelector(".projects__inner"),
+        projData.project.title,
+        projData.project.id
+      );
+      project.loadTasks(); // Load tasks for the project
+    }
+  }
 });
