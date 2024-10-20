@@ -1,4 +1,4 @@
-import logo from "./logo01.svg";
+import logo from "./Group 1.svg";
 import "./style.css";
 
 export function header() {
