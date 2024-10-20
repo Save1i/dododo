@@ -93,6 +93,8 @@ class Project {
       }
     });
 
+    this.applyFontBasedOnLanguage(this.title, this.titleText);
+
     // Load saved tasks if any
     this.loadTasks();
   }
@@ -121,8 +123,10 @@ class Project {
 
   addTask() {
     const taskTitle = prompt("Enter task title:");
-    const taskDate = format(new Date(), "P");
+    const taskDate = format(new Date(), "dd/MM/Y");
     const newTask = new Task(this, taskTitle, taskDate);
+
+    this.applyFontBasedOnLanguage(taskTitle, newTask.titleElement);
 
     newTask.id = this.getNewTaskId(); // Assign a new unique id to the task
 
@@ -192,10 +196,27 @@ class Project {
             const task = new Task(this, taskData.title, taskData.date, taskData.isComplete);
             task.id = taskData.id;
             this._tasks.push(task);
-            // console.log(`Loaded Task: ${taskData.title} (ID: ${taskData.id})`);
+
+            this.applyFontBasedOnLanguage(taskData.title, task.titleElement);
           }
         }
       }
+    }
+  }
+
+  detectLanguage(text) {
+    // Простейший способ определения русского языка — проверить наличие кириллических символов
+    const cyrillicPattern = /[а-яА-ЯЁё]/;
+    return cyrillicPattern.test(text) ? "ru" : "en";
+  }
+
+  applyFontBasedOnLanguage(text, container) {
+    const language = this.detectLanguage(text);
+
+    if (language === "ru") {
+      container.classList.add("russian");
+    } else {
+      container.classList.remove("russian");
     }
   }
 }
@@ -307,6 +328,8 @@ document.addEventListener("DOMContentLoaded", () => {
       prompt("Enter project title"),
       "Aprojects"
     );
+
+    newProject.applyFontBasedOnLanguage(newProject.title, newProject.projectBtn);
   });
 
   // Load existing projects
@@ -318,7 +341,28 @@ document.addEventListener("DOMContentLoaded", () => {
         projData.project.title,
         projData.project.id
       );
+      project.applyFontBasedOnLanguage(projData.project.title, project.projectBtn);
       project.loadTasks(); // Load tasks for the project
     }
   }
+
+  const openSidebar = document.querySelector(".sidebar__svg");
+  const sideBar = document.querySelector(".sidebar");
+  const mediaQuery = window.matchMedia("(max-width: 826px)");
+
+  const project = document.querySelector(".project");
+
+  openSidebar.addEventListener("click", () => {
+    if (window.innerWidth < 826) {
+      sideBar.classList.toggle("open");
+      project.classList.toggle("blurred");
+    }
+  });
+  window.addEventListener("resize", () => {
+    if (window.innerWidth > 826) {
+      project.classList.remove("blurred");
+    } else if (window.innerWidth < 826 && sideBar.classList.contains("open")) {
+      project.classList.add("blurred");
+    }
+  });
 });
